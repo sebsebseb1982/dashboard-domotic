@@ -1,68 +1,73 @@
-
-#include <SPI.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#include "ESP8266HTTPClient.h"
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 #include <ArduinoJson.h>
-#include <WiFiClientSecureBearSSL.h>
 #include <TimeLib.h>
+#include <moonPhase.h>
 
 #include "secret.h"
+#include "common.h"
 #include "quote-of-the-day.h"
+#include "quote-img.h"
 #include "weather-forecast.h"
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+// base class GxEPD2_GFX can be used to pass references or pointers to the display instance as parameter, uses ~1.2k more code
+// enable or disable GxEPD2_GFX base class
+#define ENABLE_GxEPD2_GFX 0
 
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+#define REFRESH_EVERY_N_MINUTES 30
 
-void setupWifi() {
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+#include <GxEPD2_BW.h>
+#include <GxEPD2_3C.h>
+#include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSans12pt7b.h>
 
-  Serial.print("Connecting");
-  display.clearDisplay();
+GxEPD2_3C < GxEPD2_750c_Z90, GxEPD2_750c_Z90::HEIGHT / 2 > display(GxEPD2_750c_Z90(/*CS=*/ 15, /*DC=*/ 27, /*RST=*/ 26, /*BUSY=*/ 25)); // GDEH075Z90 880x528
 
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(200);
-    Serial.print(".");
-  }
+WiFiClient espClient;
+WiFiUDP ntpUDP;
+
+NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 3600, 60000);
+
+void setup()
+{
+  Serial.begin(115200);
+
   Serial.println();
+  Serial.println("setup");
+  display.init(115200); // uses standard SPI pins, e.g. SCK(18), MISO(19), MOSI(23), SS(5)
+  // *** special handling for Waveshare ESP32 Driver board *** //
+  // ********************************************************* //
+  SPI.end(); // release standard SPI pins, e.g. SCK(18), MISO(19), MOSI(23), SS(5)
+  //SPI: void begin(int8_t sck=-1, int8_t miso=-1, int8_t mosi=-1, int8_t ss=-1);
+  SPI.begin(13, 12, 14, 15); // map and init SPI pins SCK(13), MISO(12), MOSI(14), SS(15)
+  // *** end of special handling for Waveshare ESP32 Driver board *** //
+  // **************************************************************** //
 
-  Serial.print("Connected, IP address: ");
-  Serial.println(WiFi.localIP());
-}
-
-void setupDisplay() {
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    for (;;); // Don't proceed, loop forever
-  }
-  display.clearDisplay();
-  display.setTextSize(1);      // Normal 1:1 pixel scale
-  display.setTextColor(WHITE); // Draw white text
-  display.setCursor(0, 0);     // Start at top-left corner
-  display.cp437(true);         // Use full 256 char 'Code Page 437' font
-}
-
-void setup() {
-  Serial.begin(9600);
-  setupDisplay();
   setupWifi();
+  delay(3000);
+  timeClient.begin();
+
+  //display.setFullWindow();
+  display.firstPage();
+  do
+  {
+    //display.fillScreen(GxEPD_WHITE);
+
+
+    drawGrid();
+    //drawGrid2();
+    drawQuoteOfTheDay();
+    drawTwoDaysWeatherForecasts();
+  }
+  while (display.nextPage());
+  display.powerOff();
+  Serial.println("setup done");
+  esp_sleep_enable_timer_wakeup(REFRESH_EVERY_N_MINUTES * 60 * 1000000);
+  esp_deep_sleep_start();
 }
 
-void loop() {
-  QuoteOfTheDay quoteOfTheDay = getQuoteOfTheDay();
-  display.println(quoteOfTheDay.quote);
-  display.println(quoteOfTheDay.author);
-    /*TwoDaysWeatherForecasts twoDaysWeatherForecasts = getWeatherForecasts();
-    displayWeatherForecast(twoDaysWeatherForecasts.today);
-    displayWeatherForecast(twoDaysWeatherForecasts.tomorrow);*/
-
-  display.display();
-  ESP.deepSleep(5 * 1000);
+void loop()
+{
 }

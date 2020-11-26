@@ -38,19 +38,6 @@ TwoDaysWeatherForecasts getWeatherForecasts() {
   http.end();
 }
 
-/*
-  void displayWeatherForecast(WeatherForecast weatherForecast) {
-  display.print(day(weatherForecast.date));
-  display.print("/");
-  display.print(month(weatherForecast.date));
-  display.print(" ");
-  display.println(weatherForecast.weather);
-  int minTemperature = round(weatherForecast.min);
-  display.println(minTemperature);
-  display.println(round(weatherForecast.max));
-  }
-*/
-
 void drawTemperature(float temperature, int x, int y) {
   display.setFont(&FreeSans12pt7b);
   display.setTextColor(GxEPD_BLACK);
@@ -81,32 +68,63 @@ void drawDate(int date, int x, int y) {
   );
 }
 
-void drawIcon(int x, int y, String icon) {
+void drawIcon(int x, int y, String icon, boolean replaceByMoonPhaseAtNight) {
   timeClient.update();
   Serial.println(timeClient.getFormattedTime());
-  moonData_t moon;
+  boolean isNight = timeClient.getHours() >= 21 || timeClient.getHours() <= 5;
+  
+  if (replaceByMoonPhaseAtNight && isNight) {
+    moonData_t moon = moonPhase.getPhase(timeClient.getEpochTime());
 
-  moon = moonPhase.getPhase(timeClient.getEpochTime());
+    if (moon.angle >= 349 || moon.angle < 11) {
+      display.drawBitmap(x + 10, y + 10, moon000, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 11 && moon.angle < 34) {
+      display.drawBitmap(x + 10, y + 10, moon022, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 34 && moon.angle < 56) {
+      display.drawBitmap(x + 10, y + 10, moon045, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 56 && moon.angle < 79) {
+      display.drawBitmap(x + 10, y + 10, moon067, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 79 && moon.angle < 101) {
+      display.drawBitmap(x + 10, y + 10, moon090, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 101 && moon.angle < 124) {
+      display.drawBitmap(x + 10, y + 10, moon112, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 124 && moon.angle < 146) {
+      display.drawBitmap(x + 10, y + 10, moon135, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 146 && moon.angle < 169) {
+      display.drawBitmap(x + 10, y + 10, moon157, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 169 && moon.angle < 191) {
+      display.drawBitmap(x + 10, y + 10, moon180, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 191 && moon.angle < 214) {
+      display.drawBitmap(x + 10, y + 10, moon202, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 214 && moon.angle < 236) {
+      display.drawBitmap(x + 10, y + 10, moon225, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 236 && moon.angle < 259) {
+      display.drawBitmap(x + 10, y + 10, moon247, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 259 && moon.angle < 281) {
+      display.drawBitmap(x + 10, y + 10, moon270, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 281 && moon.angle < 304) {
+      display.drawBitmap(x + 10, y + 10, moon292, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 304 && moon.angle < 326) {
+      display.drawBitmap(x + 10, y + 10, moon315, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    } else if (moon.angle >= 326 && moon.angle < 349) {
+      display.drawBitmap(x + 10, y + 10, moon337, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
+    }
 
-  Serial.println(moon.angle);
-  Serial.println(moon.percentLit * 100);
-  Serial.print(hour());
-  Serial.print("h");
-  Serial.print(minute());
-  Serial.print("m");
-  Serial.print(second());
-  Serial.println("s");
+    Serial.println(moon.angle);
+    Serial.println(moon.percentLit * 100);
 
-  if (icon.startsWith("01")) {
-    display.drawBitmap(x, y, clear_sky_01d, 100, 100, GxEPD_RED);
-  }  else if (icon.startsWith("02")) {
-    display.drawBitmap(x, y, few_clouds_02d, 100, 100, GxEPD_RED);
-  }  else if (icon.startsWith("03")) {
-    display.drawBitmap(x, y, scattered_clouds_03d, 100, 100, GxEPD_RED);
+  } else {
+    if (icon.startsWith("01")) {
+      display.drawBitmap(x, y, clear_sky_01d, 100, 100, GxEPD_RED);
+    }  else if (icon.startsWith("02")) {
+      display.drawBitmap(x, y, few_clouds_02d, 100, 100, GxEPD_RED);
+    }  else if (icon.startsWith("03")) {
+      display.drawBitmap(x, y, scattered_clouds_03d, 100, 100, GxEPD_RED);
+    }
   }
 }
 
-void drawWeatherForecast(WeatherForecast weatherForecast, String dayDescription, int x, int y) {
+void drawWeatherForecast(WeatherForecast weatherForecast, String dayDescription, int x, int y, boolean replaceByMoonPhaseAtNight) {
   int center = x + (SCREEN_WIDTH / 8);
 
   display.setTextColor(GxEPD_BLACK);
@@ -138,7 +156,8 @@ void drawWeatherForecast(WeatherForecast weatherForecast, String dayDescription,
   drawIcon(
     center - 10,
     y + 75,
-    weatherForecast.icon
+    weatherForecast.icon,
+    replaceByMoonPhaseAtNight
   );
 
 
@@ -152,12 +171,14 @@ void drawTwoDaysWeatherForecasts() {
     twoDaysWeatherForecasts.today,
     "Aujourd'hui",
     0,
-    y
+    y,
+    true
   );
   drawWeatherForecast(
     twoDaysWeatherForecasts.tomorrow,
     "Demain",
     SCREEN_WIDTH / 4,
-    y
+    y,
+    false
   );
 }

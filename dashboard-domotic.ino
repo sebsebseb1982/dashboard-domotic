@@ -11,6 +11,7 @@
 #include "quote-of-the-day.h"
 #include "quote-img.h"
 #include "weather-forecast.h"
+#include "moon.h"
 
 // base class GxEPD2_GFX can be used to pass references or pointers to the display instance as parameter, uses ~1.2k more code
 // enable or disable GxEPD2_GFX base class

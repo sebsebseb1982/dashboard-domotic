@@ -12,12 +12,13 @@
 #include "quote-img.h"
 #include "weather-forecast.h"
 #include "moon.h"
+#include "maison.h"
 
 // base class GxEPD2_GFX can be used to pass references or pointers to the display instance as parameter, uses ~1.2k more code
 // enable or disable GxEPD2_GFX base class
 #define ENABLE_GxEPD2_GFX 0
 
-#define REFRESH_EVERY_N_MINUTES 30
+#define REFRESH_EVERY_N_MINUTES 50
 
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
@@ -31,8 +32,24 @@ WiFiUDP ntpUDP;
 
 NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 3600, 60000);
 
+void print_wakeup_reason() {
+  esp_sleep_wakeup_cause_t wakeup_reason;
+
+  wakeup_reason = esp_sleep_get_wakeup_cause();
+
+  switch (wakeup_reason) {
+    case ESP_SLEEP_WAKEUP_EXT0 : Serial.println("Wakeup caused by external signal using RTC_IO"); break;
+    case ESP_SLEEP_WAKEUP_EXT1 : Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
+    case ESP_SLEEP_WAKEUP_TIMER : Serial.println("Wakeup caused by timer"); break;
+    case ESP_SLEEP_WAKEUP_TOUCHPAD : Serial.println("Wakeup caused by touchpad"); break;
+    case ESP_SLEEP_WAKEUP_ULP : Serial.println("Wakeup caused by ULP program"); break;
+    default : Serial.printf("Wakeup was not caused by deep sleep: %d\n", wakeup_reason); break;
+  }
+}
+
 void setup()
 {
+    delay(500);
   Serial.begin(115200);
 
   Serial.println();
@@ -46,26 +63,40 @@ void setup()
   // *** end of special handling for Waveshare ESP32 Driver board *** //
   // **************************************************************** //
 
+  print_wakeup_reason();
+
   setupWifi();
-  delay(3000);
+  delay(5000);
+
   timeClient.begin();
 
-  //display.setFullWindow();
+  display.setFullWindow();
   display.firstPage();
-  do
-  {
-    //display.fillScreen(GxEPD_WHITE);
-
-
+  
+  do {
+    
+    display.fillScreen(GxEPD_WHITE);
     drawGrid();
+    
+    drawHouse();
     //drawGrid2();
+    
     drawQuoteOfTheDay();
+    
     drawTwoDaysWeatherForecasts();
-  }
-  while (display.nextPage());
+    /*
+    */
+  } while (display.nextPage());
+
   display.powerOff();
+  
   Serial.println("setup done");
-  esp_sleep_enable_timer_wakeup(REFRESH_EVERY_N_MINUTES * 60 * 1000000);
+  int tutu = esp_sleep_enable_timer_wakeup(REFRESH_EVERY_N_MINUTES * 60e6);
+  Serial.println(tutu);
+  Serial.print("Going back to sleep for ");
+  Serial.print(REFRESH_EVERY_N_MINUTES);
+  Serial.println(" minutes.");
+  Serial.flush();
   esp_deep_sleep_start();
 }
 

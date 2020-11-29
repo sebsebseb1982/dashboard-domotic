@@ -55,7 +55,6 @@ void drawQuoteOfTheDay() {
   author += quoteOfTheDay.author;
 
   display.drawBitmap(800, y + height - 20, quoteBottom, 64, 64, GxEPD_RED);
-
-  display.setCursor(SCREEN_WIDTH - 250, y + height + 20);
-  display.print(author);
+  
+  drawRightAlignedString(author,SCREEN_WIDTH - 100,y + height + 20);
 }

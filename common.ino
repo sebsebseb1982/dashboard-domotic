@@ -10,18 +10,8 @@ void drawCentreString(const String &buf, int x, int y) {
 void drawRightAlignedString(const String buf, int x, int y) {
   int16_t x1, y1;
   uint16_t w, h;
-  display.getTextBounds(buf, x, y, &x1, &y1, &w, &h);
-  /*
-  Serial.println(buf);
-  Serial.println("x");
-  Serial.println(x);
-  Serial.println("x1");
-  Serial.println(x1);
-  Serial.println("y");
-  Serial.println(y);
-  Serial.println("w");
-  Serial.println(w);
-  */
+  display.getTextBounds(buf, 0, 0, &x1, &y1, &w, &h);
+
   display.setCursor(x - w, y);
   display.print(buf);
 }
@@ -62,7 +52,7 @@ void drawFloatingText(const String &buf, int x, int y, int maxWidth, int &height
     }
     currentLine += nextWord;
 
-    display.getTextBounds(currentLine, x, y, &x1, &y1, &w, &h);
+    display.getTextBounds(currentLine, 0, 0, &x1, &y1, &w, &h);
 
     if (w > maxWidth) {
       display.setCursor(x, y + (lineIndex * LINE_HEIGHT));

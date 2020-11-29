@@ -48,8 +48,8 @@ void drawTemperature(float temperature, int x, int y) {
   drawRightAlignedString(temperatureBuffer, x, y);
 
   // Pour remplacer le putain de caractère °
-  display.drawCircle(x - 16, y - 16, 1, GxEPD_BLACK);
-  display.drawCircle(x - 16, y - 16, 2, GxEPD_BLACK);
+  display.drawCircle(x - 16, y - 15, 1, GxEPD_BLACK);
+  display.drawCircle(x - 16, y - 15, 2, GxEPD_BLACK);
 }
 
 void drawDate(int date, int x, int y) {
@@ -69,10 +69,9 @@ void drawDate(int date, int x, int y) {
 }
 
 void drawIcon(int x, int y, String icon, boolean replaceByMoonPhaseAtNight) {
-  timeClient.update();
-  Serial.println(timeClient.getFormattedTime());
-  boolean isNight = timeClient.getHours() >= 21 || timeClient.getHours() <= 5;
-  
+
+  boolean isNight = timeClient.getHours() >= 21 || timeClient.getHours() <= 4;
+
   if (replaceByMoonPhaseAtNight && isNight) {
     moonData_t moon = moonPhase.getPhase(timeClient.getEpochTime());
 
@@ -109,17 +108,25 @@ void drawIcon(int x, int y, String icon, boolean replaceByMoonPhaseAtNight) {
     } else if (moon.angle >= 326 && moon.angle < 349) {
       display.drawBitmap(x + 10, y + 10, moon337, MOON_PHASE_IMAGE_WIDTH, MOON_PHASE_IMAGE_HEIGHT, GxEPD_RED);
     }
-
-    Serial.println(moon.angle);
-    Serial.println(moon.percentLit * 100);
-
   } else {
     if (icon.startsWith("01")) {
-      display.drawBitmap(x, y, clear_sky_01d, 100, 100, GxEPD_RED);
+      display.drawBitmap(x, y, clear_sky_01, 100, 100, GxEPD_RED);
     }  else if (icon.startsWith("02")) {
-      display.drawBitmap(x, y, few_clouds_02d, 100, 100, GxEPD_RED);
+      display.drawBitmap(x, y, few_clouds_02, 100, 100, GxEPD_RED);
     }  else if (icon.startsWith("03")) {
-      display.drawBitmap(x, y, scattered_clouds_03d, 100, 100, GxEPD_RED);
+      display.drawBitmap(x, y, scattered_clouds_03, 100, 100, GxEPD_RED);
+    }  else if (icon.startsWith("04")) {
+      display.drawBitmap(x, y, broken_clouds_04, 100, 100, GxEPD_RED);
+    }  else if (icon.startsWith("09")) {
+      display.drawBitmap(x, y, shower_rain_09, 100, 100, GxEPD_RED);
+    }  else if (icon.startsWith("10")) {
+      display.drawBitmap(x, y, rain_10, 100, 100, GxEPD_RED);
+    }  else if (icon.startsWith("11")) {
+      display.drawBitmap(x, y, thunderstorm_11, 100, 100, GxEPD_RED);
+    }  else if (icon.startsWith("13")) {
+      display.drawBitmap(x, y, snow_13, 100, 100, GxEPD_RED);
+    }  else if (icon.startsWith("50")) {
+      display.drawBitmap(x, y, mist_50, 100, 100, GxEPD_RED);
     }
   }
 }
@@ -159,8 +166,6 @@ void drawWeatherForecast(WeatherForecast weatherForecast, String dayDescription,
     weatherForecast.icon,
     replaceByMoonPhaseAtNight
   );
-
-
 }
 
 void drawTwoDaysWeatherForecasts() {

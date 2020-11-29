@@ -1,7 +1,6 @@
 #define GRID_LINES_WIDTH 2
 #define GRID_COLOR GxEPD_BLACK
 
-
 void drawHorizontalSplit() {
   display.fillRect(
     SPACE_BETWEEN_LINES,
@@ -35,13 +34,30 @@ void drawBottomSplits() {
 
 void drawGrid()
 {
-      display.fillScreen(GxEPD_WHITE);
   drawHorizontalSplit();
   drawBottomSplits();
+
+
+  display.fillRect(
+    0,
+    0,
+    SCREEN_WIDTH,
+    20,
+    GxEPD_RED
+  );
+
+
+  display.setTextColor(GxEPD_WHITE);
+  display.setCursor(6, 6);
+  display.print(WiFi.localIP());
+
+  timeClient.update();
+  drawRightAlignedString(timeClient.getFormattedTime(), SCREEN_WIDTH-6, 6);
+
 }
 
 void drawGrid2() {
-    display.fillScreen(GxEPD_WHITE);
+  display.fillScreen(GxEPD_WHITE);
 
   // Météo
   display.fillRect(
@@ -51,7 +67,7 @@ void drawGrid2() {
     SCREEN_HEIGHT,
     GxEPD_RED
   );
-  
+
   // courbes
   display.fillRect(
     SCREEN_WIDTH / 4,

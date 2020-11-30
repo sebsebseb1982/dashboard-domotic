@@ -77,6 +77,8 @@ void setup()
     
     display.fillScreen(GxEPD_WHITE);
     drawGrid();
+
+    drawChart();
     
     drawHouse();
     //drawGrid2();
@@ -84,8 +86,7 @@ void setup()
     drawQuoteOfTheDay();
     
     drawTwoDaysWeatherForecasts();
-    /*
-    */
+
   } while (display.nextPage());
 
   display.powerOff();

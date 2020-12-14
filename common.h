@@ -3,6 +3,8 @@
 #define HORIZONTAL_SPLIT_Y 300
 #define SPACE_BETWEEN_LINES 20
 
+#define HTTP_RETRY 10
+
 /**
    Pour récupérer un nouve certificat :
    https://techtutorialsx.com/2017/11/18/esp32-arduino-https-get-request/

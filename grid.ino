@@ -34,26 +34,10 @@ void drawBottomSplits() {
 
 void drawGrid()
 {
+  Serial.println("drawGrid() : START");
   drawHorizontalSplit();
   drawBottomSplits();
-
-
-  display.fillRect(
-    0,
-    0,
-    SCREEN_WIDTH,
-    20,
-    GxEPD_RED
-  );
-
-
-  display.setTextColor(GxEPD_WHITE);
-  display.setCursor(6, 6);
-  display.print(WiFi.localIP());
-
-  timeClient.update();
-  drawRightAlignedString(timeClient.getFormattedTime(), SCREEN_WIDTH-6, 6);
-
+  Serial.println("drawGrid() : END");
 }
 
 void drawGrid2() {

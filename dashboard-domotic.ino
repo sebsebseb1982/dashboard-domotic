@@ -12,13 +12,15 @@
 #include "quote-img.h"
 #include "weather-forecast.h"
 #include "moon.h"
-#include "maison.h"
+#include "house.h"
+#include "battery.h"
+#include "status-bar.h"
 
 // base class GxEPD2_GFX can be used to pass references or pointers to the display instance as parameter, uses ~1.2k more code
 // enable or disable GxEPD2_GFX base class
 #define ENABLE_GxEPD2_GFX 0
 
-#define REFRESH_EVERY_N_MINUTES 50
+#define REFRESH_EVERY_N_MINUTES 59
 
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
@@ -49,8 +51,10 @@ void print_wakeup_reason() {
 
 void setup()
 {
-    delay(500);
+  delay(500);
   Serial.begin(115200);
+
+
 
   Serial.println();
   Serial.println("setup");
@@ -63,7 +67,7 @@ void setup()
   // *** end of special handling for Waveshare ESP32 Driver board *** //
   // **************************************************************** //
 
-  print_wakeup_reason();
+  //print_wakeup_reason();
 
   setupWifi();
   delay(5000);
@@ -72,28 +76,28 @@ void setup()
 
   display.setFullWindow();
   display.firstPage();
-  
+
+  StatusBarDatas statusBarDatas = getStatusBarDatas();
+  QuoteOfTheDay quoteOfTheDay = getQuoteOfTheDay();
+  Temperatures temperatures = getTemperatures();
+  TwoDaysWeatherForecasts twoDaysWeatherForecasts = getWeatherForecasts();
+
+  updateJeedomVirtualValue(330, String(statusBarDatas.voltage));
+
   do {
-    
     display.fillScreen(GxEPD_WHITE);
     drawGrid();
-
-    drawChart();
-    
-    drawHouse();
+    drawStatusBar(statusBarDatas);
+    //drawChart();
+    drawHouse(temperatures);
     //drawGrid2();
-    
-    drawQuoteOfTheDay();
-    
-    drawTwoDaysWeatherForecasts();
-
+    drawQuoteOfTheDay(quoteOfTheDay);
+    drawTwoDaysWeatherForecasts(twoDaysWeatherForecasts);
   } while (display.nextPage());
 
   display.powerOff();
-  
-  Serial.println("setup done");
-  int tutu = esp_sleep_enable_timer_wakeup(REFRESH_EVERY_N_MINUTES * 60e6);
-  Serial.println(tutu);
+
+  esp_sleep_enable_timer_wakeup(REFRESH_EVERY_N_MINUTES * 60e6);
   Serial.print("Going back to sleep for ");
   Serial.print(REFRESH_EVERY_N_MINUTES);
   Serial.println(" minutes.");

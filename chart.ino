@@ -52,6 +52,8 @@ void drawMyImage(int x, int y, String hexString, int w, int h, uint16_t color) {
 }
 
 void drawChart() {
-  drawMyImage(450, 30, getChartImage("downstairs"), IMAGE_WIDTH, IMAGE_HEIGHT, GxEPD_BLACK);
-  drawMyImage(450, 30, getChartImage("upstairs"), IMAGE_WIDTH, IMAGE_HEIGHT, GxEPD_RED);
+  Serial.println("drawChart() : START");
+  drawMyImage(450, 60, getChartImage("downstairs"), IMAGE_WIDTH, IMAGE_HEIGHT, GxEPD_BLACK);
+  drawMyImage(450, 60, getChartImage("upstairs"), IMAGE_WIDTH, IMAGE_HEIGHT, GxEPD_RED);
+  Serial.println("drawChart() : END");
 }

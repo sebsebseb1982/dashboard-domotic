@@ -3,10 +3,29 @@ moonPhase moonPhase;
 TwoDaysWeatherForecasts getWeatherForecasts() {
   HTTPClient http;
   http.begin(API_OPENWEATHERMAP, root_ca);
-  int httpCode = http.GET();
+
+  String message;
+  message += F("Récupération de la météo");
+  message += F(" (GET ");
+  message += API_OPENWEATHERMAP;
+  message += F(")");
+  Serial.println(message);
+
+  int httpCode;
+  int retry = 0;
+
+  do {
+    httpCode = http.GET();
+    retry ++;
+    Serial.println("...");
+  } while (httpCode <= 0 && retry < HTTP_RETRY);
 
   if (httpCode > 0) {
+    Serial.println("OK");
+    Serial.println("");
+
     String response = http.getString();
+    http.end();
     DynamicJsonDocument doc(8192);
     DeserializationError error = deserializeJson(doc, response);
     if (error) {
@@ -31,16 +50,19 @@ TwoDaysWeatherForecasts getWeatherForecasts() {
     };
 
   } else {
-    Serial.print("Error on sending GET Request: ");
-    Serial.println(httpCode);
+    String error;
+    error += F("KO -> code erreur = ");
+    error += String(httpCode);
+    Serial.println(error);
+    Serial.println("");
     return {{0, "", 0, 0}};
   }
-  http.end();
+
 }
 
-void drawTemperature(float temperature, int x, int y) {
+void drawTemperature(float temperature, int x, int y, uint16_t color) {
   display.setFont(&FreeSans12pt7b);
-  display.setTextColor(GxEPD_BLACK);
+  display.setTextColor(color);
 
   String temperatureBuffer;
   temperatureBuffer += String(temperature, 1);
@@ -48,8 +70,8 @@ void drawTemperature(float temperature, int x, int y) {
   drawRightAlignedString(temperatureBuffer, x, y);
 
   // Pour remplacer le putain de caractère °
-  display.drawCircle(x - 16, y - 15, 1, GxEPD_BLACK);
-  display.drawCircle(x - 16, y - 15, 2, GxEPD_BLACK);
+  display.drawCircle(x - 16, y - 15, 1, color);
+  display.drawCircle(x - 16, y - 15, 2, color);
 }
 
 void drawDate(int date, int x, int y) {
@@ -151,13 +173,15 @@ void drawWeatherForecast(WeatherForecast weatherForecast, String dayDescription,
   drawTemperature(
     weatherForecast.max,
     center - 20,
-    y + 120
+    y + 120,
+    GxEPD_BLACK
   );
 
   drawTemperature(
     weatherForecast.min,
     center - 20,
-    y + 150
+    y + 150,
+    GxEPD_BLACK
   );
 
   drawIcon(
@@ -168,8 +192,8 @@ void drawWeatherForecast(WeatherForecast weatherForecast, String dayDescription,
   );
 }
 
-void drawTwoDaysWeatherForecasts() {
-  TwoDaysWeatherForecasts twoDaysWeatherForecasts = getWeatherForecasts();
+void drawTwoDaysWeatherForecasts(TwoDaysWeatherForecasts twoDaysWeatherForecasts) {
+  Serial.println("drawTwoDaysWeatherForecasts() : START");
 
   int y = HORIZONTAL_SPLIT_Y + SPACE_BETWEEN_LINES;
   drawWeatherForecast(
@@ -186,4 +210,5 @@ void drawTwoDaysWeatherForecasts() {
     y,
     false
   );
+  Serial.println("drawTwoDaysWeatherForecasts() : END");
 }

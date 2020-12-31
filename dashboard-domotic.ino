@@ -15,6 +15,7 @@
 #include "house.h"
 #include "battery.h"
 #include "status-bar.h"
+#include "chart.h"
 
 // base class GxEPD2_GFX can be used to pass references or pointers to the display instance as parameter, uses ~1.2k more code
 // enable or disable GxEPD2_GFX base class
@@ -81,6 +82,7 @@ void setup()
   QuoteOfTheDay quoteOfTheDay = getQuoteOfTheDay();
   Temperatures temperatures = getTemperatures();
   TwoDaysWeatherForecasts twoDaysWeatherForecasts = getWeatherForecasts();
+  ChartDatas chartDatas = getChartDatas();
 
   updateJeedomVirtualValue(330, String(statusBarDatas.voltage));
 
@@ -88,7 +90,7 @@ void setup()
     display.fillScreen(GxEPD_WHITE);
     drawGrid();
     drawStatusBar(statusBarDatas);
-    //drawChart();
+    drawChart(chartDatas);
     drawHouse(temperatures);
     //drawGrid2();
     drawQuoteOfTheDay(quoteOfTheDay);

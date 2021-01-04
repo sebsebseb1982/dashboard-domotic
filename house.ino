@@ -28,15 +28,18 @@ Temperatures getTemperatures() {
     getJeedomVirtualValue(315),
     getJeedomVirtualValue(314),
     getJeedomVirtualValue(320),
-    getJeedomVirtualValue(291)
+    getJeedomVirtualValue(291),
+    getJeedomVirtualValue(340) == "1" ? true : false
   };
 }
 
-void drawThermostat(String setPoint) {
+void drawThermostat(String setPoint, bool heaterStatus) {
   int thermostatX = SPACE_BETWEEN_LINES;
   int thermostatY = 230;
   int thermostatWidth = 110;
   int thermostatHeight = 50;
+
+  uint16_t color = heaterStatus ? GxEPD_RED : GxEPD_BLACK;
 
   display.drawRoundRect(
     thermostatX,
@@ -44,7 +47,7 @@ void drawThermostat(String setPoint) {
     thermostatWidth,
     thermostatHeight,
     6,
-    GxEPD_BLACK
+    color
   );
 
   display.drawLine(
@@ -52,14 +55,14 @@ void drawThermostat(String setPoint) {
     thermostatY,
     thermostatX + thermostatWidth - 30,
     thermostatY + thermostatHeight - 1,
-    GxEPD_BLACK
+    color
   );
 
   display.drawCircle(
     thermostatX + thermostatWidth - 16,
     thermostatY + (thermostatHeight / 2) - 1,
     4,
-    GxEPD_BLACK
+    color
   );
 
   display.drawBitmap(
@@ -68,7 +71,7 @@ void drawThermostat(String setPoint) {
     arrowUp,
     9,
     5,
-    GxEPD_BLACK
+    color
   );
 
   display.drawBitmap(
@@ -77,11 +80,11 @@ void drawThermostat(String setPoint) {
     arrowDown,
     9,
     5,
-    GxEPD_BLACK
+    color
   );
 
   display.setFont(&FreeSans12pt7b);
-  display.setTextColor(GxEPD_BLACK);
+  display.setTextColor(color);
 
   drawRightAlignedString(
     String(atof(setPoint.c_str()), 1),
@@ -141,7 +144,10 @@ void drawHouse(Temperatures temperatures) {
     GxEPD_BLACK
   );
 
-  drawThermostat(temperatures.setPoint);
+  drawThermostat(
+    temperatures.setPoint,
+    temperatures.heaterStatus
+  );
 
   Serial.println("drawHouse() : END");
 }

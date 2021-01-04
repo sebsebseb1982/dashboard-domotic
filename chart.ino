@@ -1,7 +1,7 @@
 #define IMAGE_WIDTH 400
 #define IMAGE_HEIGHT 250
 
-String getChartImage(String serie) {
+String getSerieImage(String serie) {
   HTTPClient http;
   String url;
   url += F("http://");
@@ -48,14 +48,6 @@ String getChartImage(String serie) {
   http.end();
 }
 
-ChartDatas getChartDatas() {
-  return {
-    getChartImage("outside"),
-    getChartImage("upstairs"),
-    getChartImage("downstairs")
-  };
-}
-
 void drawMyImage(int x, int y, String hexString, int w, int h, uint16_t color) {
   int currentX = x;
   int currentY = y;
@@ -71,7 +63,7 @@ void drawMyImage(int x, int y, String hexString, int w, int h, uint16_t color) {
     int number = strtol(merde.c_str(), NULL, 16);
 
     for (int tutu = 0; tutu < 4; tutu++) {
-      if (bitRead(number, 3-tutu) == 1) {
+      if (bitRead(number, 3 - tutu) == 1) {
         display.drawPixel(currentX + tutu, currentY, color);
       }
     }
@@ -85,12 +77,12 @@ void drawMyImage(int x, int y, String hexString, int w, int h, uint16_t color) {
   }
 }
 
-void drawChart(ChartDatas chartDatas) {
-  Serial.println("drawChart() : START");
+void drawChart() {
+  Serial.println("drawSerie() : START");
   int chartX = 430;
   int chartY = 40;
-  drawMyImage(chartX, chartY, chartDatas.downstairs, IMAGE_WIDTH, IMAGE_HEIGHT, GxEPD_BLACK);
-  drawMyImage(chartX, chartY, chartDatas.upstairs, IMAGE_WIDTH, IMAGE_HEIGHT, GxEPD_RED);
-  drawMyImage(chartX, chartY, chartDatas.outside, IMAGE_WIDTH, IMAGE_HEIGHT, GxEPD_BLACK);
-  Serial.println("drawChart() : END");
+  drawMyImage(chartX, chartY, getSerieImage("outside"), IMAGE_WIDTH, IMAGE_HEIGHT, GxEPD_BLACK);
+  drawMyImage(chartX, chartY, getSerieImage("upstairs"), IMAGE_WIDTH, IMAGE_HEIGHT, GxEPD_RED);
+  drawMyImage(chartX, chartY, getSerieImage("downstairs"), IMAGE_WIDTH, IMAGE_HEIGHT, GxEPD_BLACK);
+  Serial.println("drawSerie() : END");
 }

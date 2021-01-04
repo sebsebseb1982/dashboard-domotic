@@ -3,6 +3,7 @@ struct Temperatures {
   String downstairs;
   String outside;
   String setPoint;
+  bool heaterStatus;
 };
 
 const unsigned char house[] PROGMEM = { /* 0X00,0X01,0X35,0X01,0XC8,0X00, */

@@ -20,8 +20,6 @@
 // enable or disable GxEPD2_GFX base class
 #define ENABLE_GxEPD2_GFX 0
 
-#define REFRESH_EVERY_N_MINUTES 59
-
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 #include <Fonts/FreeSans9pt7b.h>
@@ -78,17 +76,16 @@ void setup()
   display.firstPage();
 
   float batteryVoltage = getBatteryVoltage();
-
-
-
   updateJeedomVirtualValue(330, String(batteryVoltage));
 
-  StatusBarDatas statusBarDatas = getStatusBarDatas();
-  QuoteOfTheDay quoteOfTheDay = getQuoteOfTheDay();
-  Temperatures temperatures = getTemperatures();
-  TwoDaysWeatherForecasts twoDaysWeatherForecasts = getWeatherForecasts();
+  timeClient.update();
 
   if (batteryVoltage > 7.5) {
+    StatusBarDatas statusBarDatas = getStatusBarDatas();
+    QuoteOfTheDay quoteOfTheDay = getQuoteOfTheDay();
+    Temperatures temperatures = getTemperatures();
+    TwoDaysWeatherForecasts twoDaysWeatherForecasts = getWeatherForecasts();
+
     do {
       display.fillScreen(GxEPD_WHITE);
       drawGrid();
@@ -99,7 +96,6 @@ void setup()
       drawQuoteOfTheDay(quoteOfTheDay);
       drawTwoDaysWeatherForecasts(twoDaysWeatherForecasts);
     } while (display.nextPage());
-
   } else {
     do {
       display.fillScreen(GxEPD_WHITE);
@@ -110,12 +106,32 @@ void setup()
 
   display.powerOff();
 
-  esp_sleep_enable_timer_wakeup(REFRESH_EVERY_N_MINUTES * 60e6);
+  Serial.print("It is ");
+  Serial.print(getFormattedTime());
+  Serial.println(".");
+
+
+  int refreshRateInMinutes = getRefreshRateInMinutes(batteryVoltage);
+
+  esp_sleep_enable_timer_wakeup(refreshRateInMinutes * 60e6);
   Serial.print("Going back to sleep for ");
-  Serial.print(REFRESH_EVERY_N_MINUTES);
+  Serial.print(refreshRateInMinutes);
   Serial.println(" minutes.");
   Serial.flush();
   esp_deep_sleep_start();
+}
+
+uint64_t getRefreshRateInMinutes(float batteryVoltage) {
+  int refreshRate = 59;
+  if (batteryVoltage < 7.8) {
+    refreshRate += 60;
+  }
+
+  if (timeClient.getHours() > 0 && timeClient.getHours() < 5) {
+    refreshRate += 60;
+  }
+
+  return refreshRate;
 }
 
 void loop()

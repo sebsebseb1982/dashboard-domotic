@@ -1,21 +1,7 @@
 StatusBarDatas getStatusBarDatas() {
-  pinMode(BATTERY_VOLTAGE_PIN, INPUT);
-  timeClient.update();
-
-  String formattedTime;
-  if(timeClient.getHours() < 10) {
-    formattedTime += F("0");
-  }
-  formattedTime += timeClient.getHours();
-  formattedTime += F(":");
-  if(timeClient.getMinutes() < 10) {
-    formattedTime += F("0");
-  }
-  formattedTime += timeClient.getMinutes();
-  
   return {
     WiFi.localIP(),
-    formattedTime
+    getFormattedTime()
   };
 }
 

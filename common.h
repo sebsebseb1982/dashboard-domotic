@@ -6,7 +6,7 @@
 #define HTTP_RETRY 10
 
 /**
-   Pour récupérer un nouve certificat :
+   Pour récupérer un nouveau certificat :
    https://techtutorialsx.com/2017/11/18/esp32-arduino-https-get-request/
 */
 const char* root_ca = \

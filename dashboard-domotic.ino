@@ -77,23 +77,36 @@ void setup()
   display.setFullWindow();
   display.firstPage();
 
+  float batteryVoltage = getBatteryVoltage();
+
+
+
+  updateJeedomVirtualValue(330, String(batteryVoltage));
+
   StatusBarDatas statusBarDatas = getStatusBarDatas();
   QuoteOfTheDay quoteOfTheDay = getQuoteOfTheDay();
   Temperatures temperatures = getTemperatures();
   TwoDaysWeatherForecasts twoDaysWeatherForecasts = getWeatherForecasts();
-  
-  updateJeedomVirtualValue(330, String(statusBarDatas.voltage));
 
-  do {
-    display.fillScreen(GxEPD_WHITE);
-    drawGrid();
-    drawStatusBar(statusBarDatas);
-    drawChart();
-    drawHouse(temperatures);
-    //drawGrid2();
-    drawQuoteOfTheDay(quoteOfTheDay);
-    drawTwoDaysWeatherForecasts(twoDaysWeatherForecasts);
-  } while (display.nextPage());
+  if (batteryVoltage > 7.5) {
+    do {
+      display.fillScreen(GxEPD_WHITE);
+      drawGrid();
+      drawStatusBar(statusBarDatas, batteryVoltage);
+      drawChart();
+      drawHouse(temperatures);
+      //drawGrid2();
+      drawQuoteOfTheDay(quoteOfTheDay);
+      drawTwoDaysWeatherForecasts(twoDaysWeatherForecasts);
+    } while (display.nextPage());
+
+  } else {
+    do {
+      display.fillScreen(GxEPD_WHITE);
+      drawBatteryEmpty();
+    } while (display.nextPage());
+  }
+
 
   display.powerOff();
 

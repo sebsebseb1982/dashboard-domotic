@@ -1,5 +1,5 @@
 StatusBarDatas getStatusBarDatas() {
-  pinMode(33, INPUT);
+  pinMode(BATTERY_VOLTAGE_PIN, INPUT);
   timeClient.update();
 
   String formattedTime;
@@ -15,7 +15,6 @@ StatusBarDatas getStatusBarDatas() {
   
   return {
     WiFi.localIP(),
-    ((float)analogRead(33)) * 0.001811,
     formattedTime
   };
 }
@@ -30,9 +29,9 @@ void drawBatteryLevel(float voltage) {
   int batteryX = SCREEN_WIDTH - 60;
   int batteryY = 5;
 
-  display.drawBitmap(batteryX, batteryY, battery, 21, 10, GxEPD_WHITE);
+  display.drawBitmap(batteryX, batteryY, batteryIcon, 21, 10, GxEPD_WHITE);
 
-  if (voltage > 4.2) {
+  if (voltage > 7.48) {
     display.fillRect(
       batteryX + 2,
       batteryY + 2,
@@ -41,7 +40,7 @@ void drawBatteryLevel(float voltage) {
       GxEPD_WHITE
     );
   }
-  if (voltage > 4.3) {
+  if (voltage > 7.66) {
     display.fillRect(
       batteryX + 6,
       batteryY + 2,
@@ -50,7 +49,7 @@ void drawBatteryLevel(float voltage) {
       GxEPD_WHITE
     );
   }
-  if (voltage > 4.4) {
+  if (voltage > 7.84) {
     display.fillRect(
       batteryX + 10,
       batteryY + 2,
@@ -59,7 +58,7 @@ void drawBatteryLevel(float voltage) {
       GxEPD_WHITE
     );
   }
-  if (voltage > 4.5) {
+  if (voltage > 8.02) {
     display.fillRect(
       batteryX + 14,
       batteryY + 2,
@@ -70,7 +69,7 @@ void drawBatteryLevel(float voltage) {
   }
 }
 
-void drawStatusBar(StatusBarDatas statusBarDatas) {
+void drawStatusBar(StatusBarDatas statusBarDatas, float batteryVoltage) {
   Serial.println("drawStatusBar() : START");
   display.fillRect(
     0,
@@ -86,6 +85,6 @@ void drawStatusBar(StatusBarDatas statusBarDatas) {
   
   drawRightAlignedString(statusBarDatas.formattedTime, SCREEN_WIDTH - 6, 6);
 
-  drawBatteryLevel(statusBarDatas.voltage);
+  drawBatteryLevel(batteryVoltage);
   Serial.println("drawStatusBar() : END");
 }
